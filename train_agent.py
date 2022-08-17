@@ -13,35 +13,21 @@ def read_data(datasets_dir="./data", frac = 0.1):
     and splits it into training/ validation set.
     """
     print("... read data")
-    data_file = os.path.join(datasets_dir, 'data.pkl.gzip')
+    data_file = os.path.join(datasets_dir, 'sac_demo_InvertedPendulum_final.pickle')
   
     f = gzip.open(data_file,'rb')
     data = pickle.load(f)
 
     # get images as features and actions as targets
-    X = np.array(data["state"]).astype('float32')
-    y = np.array(data["action"]).astype('float32')
+    X = np.array(data["obs"]).astype('float32')
+    y = np.array(data["acs"]).astype('float32')
 
     # split data into training and validation set
-    n_samples = len(data["state"])
+    n_samples = len(data["obs"])
     X_train, y_train = X[:int((1-frac) * n_samples)], y[:int((1-frac) * n_samples)]
     X_valid, y_valid = X[int((1-frac) * n_samples):], y[int((1-frac) * n_samples):]
     return X_train, y_train, X_valid, y_valid
 
-
-def preprocessing(X_train, y_train, X_valid, y_valid, history_length=1):
-
-    # crop, 84 x 84, some pixels never change
-    X_train = np.array([img[:-12,6:-6] for img in X_train])
-    X_valid = np.array([img[:-12,6:-6] for img in X_valid])
-    # grayscale
-    X_train = np.array([np.dot(img[...,0:3], [0.299, 0.587, 0.114]) for img in X_train])
-    X_valid = np.array([np.dot(img[...,0:3], [0.299, 0.587, 0.114]) for img in X_valid])
-    # scaling/normalizing
-    X_train = np.array([img/255.0 for img in X_train])
-    X_valid = np.array([img/255.0 for img in X_valid])
-    
-    return X_train, y_train, X_valid, y_valid
 
 
 #def train_model(X_train, y_train, X_valid, n_minibatches, batch_size, lr, model_dir="./models", tensorboard_dir="./tensorboard"):
@@ -119,9 +105,6 @@ if __name__ == "__main__":
 
     # read data    
     X_train, y_train, X_valid, y_valid = read_data("./data")
-
-    # preprocess data
-    X_train, y_train, X_valid, y_valid = preprocessing(X_train, y_train, X_valid, y_valid, history_length=1)
 
     # train model (you can change the parameters!)
     #train_model(X_train, y_train, X_valid, n_minibatches=1000, batch_size=64, lr=0.0001)
