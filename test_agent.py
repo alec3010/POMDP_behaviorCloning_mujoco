@@ -8,19 +8,14 @@ import json
 import torch
 from model import pyTorchModel
 
-def run_episode(env, agent, rendering=True, max_timesteps=1000):
+def run_episode(env, agent, rendering=True, max_timesteps=500):
     
     episode_reward = 0
     step = 0
 
     state = env.reset()
     while True:
-        
-        # preprocess
-        state = state[:-12,6:-6]
-        state = np.dot(state[...,0:3], [0.299, 0.587, 0.114])
-        state = state/255.0
-
+    
         # get action
         agent.eval()
         tensor_state = torch.from_numpy(state).float().unsqueeze(0).unsqueeze(0)
@@ -35,7 +30,7 @@ def run_episode(env, agent, rendering=True, max_timesteps=1000):
         if rendering:
             env.render()
 
-        if done or step > max_timesteps: 
+        if step > max_timesteps: 
             break
 
     return episode_reward
@@ -46,13 +41,13 @@ if __name__ == "__main__":
     # important: don't set rendering to False for evaluation (you may get corrupted state images from gym)
     rendering = True                      
     
-    n_test_episodes = 15                  # number of episodes to test
+    n_test_episodes = 1000                  # number of episodes to test
 
     # load agent
-    agent = pyTorchModel()
-    agent.load_state_dict(torch.load("models/agent.pkl"))
+    agent = pyTorchModel(belief_dim=4, obs_dim=4, actor_hidden_dim=64, action_dim=1)
+    agent.load_state_dict(torch.load("models/InvertedPendulum.pkl"))
 
-    env = gym.make('CarRacing-v0').unwrapped
+    env = gym.make("InvertedPendulum-v2")
 
     episode_rewards = []
     for i in range(n_test_episodes):
