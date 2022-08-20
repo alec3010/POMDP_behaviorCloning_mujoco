@@ -18,7 +18,7 @@ def run_episode(env, agent, rendering=True, max_timesteps=500):
     
         # get action
         agent.eval()
-        tensor_state = torch.from_numpy(state).float().unsqueeze(0).unsqueeze(0)
+        tensor_state = torch.from_numpy(state).float()
         tensor_action = agent(tensor_state)
         a = tensor_action.detach().numpy()[0]
 
@@ -39,9 +39,9 @@ def run_episode(env, agent, rendering=True, max_timesteps=500):
 if __name__ == "__main__":
 
     # important: don't set rendering to False for evaluation (you may get corrupted state images from gym)
-    rendering = True                      
+    rendering = False                      
     
-    n_test_episodes = 1000                  # number of episodes to test
+    n_test_episodes = 10                # number of episodes to test
 
     # load agent
     agent = pyTorchModel(belief_dim=4, obs_dim=4, actor_hidden_dim=64, action_dim=1)
