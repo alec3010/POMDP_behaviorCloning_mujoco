@@ -1,0 +1,5 @@
+tensorboard/
+runs/
+models/
+data/
+*.pickle
